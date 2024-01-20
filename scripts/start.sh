@@ -60,10 +60,10 @@ iptables -A FORWARD -i tun0 -j ACCEPT
 iptables -A OUTPUT -o tun0 -j ACCEPT
 
 # Allow forwarding traffic only from the VPN.
-iptables -A FORWARD -i tun0 -o $ADAPTER -s 10.8.0.0/24 -j ACCEPT
+iptables -A FORWARD -i tun0 -o $ADAPTER -s 10.9.12.0/24 -j ACCEPT
 iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o $ADAPTER -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 10.9.12.0/24 -o $ADAPTER -j MASQUERADE
 
 cd "$APP_PERSIST_DIR"
 
@@ -79,7 +79,7 @@ if [ ! -f $LOCKFILE ]; then
         # DH parameters of size 2048 created at /usr/share/easy-rsa/pki/dh.pem
         # Copy DH file
         cp pki/dh.pem /etc/openvpn
-    fi
+    fi  
 
     easyrsa build-ca nopass << EOF
 

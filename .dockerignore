@@ -5,3 +5,4 @@ done.txt
 .gitignore
 /docs/
 it
+/openvpn_conf/

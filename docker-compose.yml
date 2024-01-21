@@ -17,7 +17,8 @@ services:
     volumes:
         - dockovpn_data:/opt/Dockovpn_data
         - ./openvpn_conf/clients:/opt/Dockovpn_data/clients
-        - ./openvpn_conf/ccd:/etc/openvpn/ccd   
+        - ./openvpn_conf/ccd:/etc/openvpn/ccd
+        - ./openvpn_ipp/ipp.txt:/opt/Dockovpn/ipp.txt
     restart: always
     networks:
         - eth

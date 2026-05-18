@@ -1,4 +1,4 @@
 mkdir -p ./openvpn_conf/clients
 mkdir -p ./openvpn_conf/ccd
 mkdir -p ./openvpn_ipp
-touch /openvpn_ipp/ipp.txt
+touch ./openvpn_ipp/ipp.txt

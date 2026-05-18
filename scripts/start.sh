@@ -50,9 +50,12 @@ if [ ! -c /dev/net/tun ]; then
     mknod /dev/net/tun c 10 200
 fi
 
-# Allow UDP traffic on port 1194.
-iptables -A INPUT -i $ADAPTER -p udp -m state --state NEW,ESTABLISHED --dport 1194 -j ACCEPT
-iptables -A OUTPUT -o $ADAPTER -p udp -m state --state ESTABLISHED --sport 1194 -j ACCEPT
+# Replace variables in ovpn config file
+sed -i 's/%HOST_TUN_PROTOCOL%/'"$HOST_TUN_PROTOCOL"'/g' /etc/openvpn/server.conf
+
+# Allow ${HOST_TUN_PROTOCOL} traffic on port 1194.
+iptables -A INPUT -i $ADAPTER -p ${HOST_TUN_PROTOCOL} -m state --state NEW,ESTABLISHED --dport 1194 -j ACCEPT
+iptables -A OUTPUT -o $ADAPTER -p ${HOST_TUN_PROTOCOL} -m state --state ESTABLISHED --sport 1194 -j ACCEPT
 
 # Allow traffic on the TUN interface.
 iptables -A INPUT -i tun0 -j ACCEPT
@@ -69,10 +72,10 @@ cd "$APP_PERSIST_DIR"
 
 LOCKFILE=.gen
 
-# Regenerate certs only on the first start 
+# Regenerate certs only on the first start
 if [ ! -f $LOCKFILE ]; then
     IS_INITIAL="1"
-
+    test -d pki || REGENERATE="1"
     if [[ -n $REGENERATE ]]; then
         easyrsa --batch init-pki
         easyrsa --batch gen-dh
@@ -104,7 +107,7 @@ EOF3
 yes
 EOF4
 
-    easyrsa gen-crl
+    easyrsa --days=$CRL_DAYS gen-crl
 
     touch $LOCKFILE
 fi

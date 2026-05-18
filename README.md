@@ -27,23 +27,33 @@ docker run -it --rm --cap-add=NET_ADMIN \
 
 To get more detailed information, go to [Quick Start](#-quick-start) tutorial or watch [video](https://youtu.be/y5Dwakc6hMs).
 
+## Supporting Dockovpn
+
+Dockovpn is a team of cybersecurity experts developing leading edge projects in Networking, VPN, DevOPS and SecOPS domains. Project is supported entirely by volonteers.
+If you'd like to help support the future of the project, please consider:
+- Giving developer time (see [Contrubition Guidelines](https://github.com/alekslitvinenk/docker-openvpn/blob/master/CONTRIBUTING.md))!
+- Giving funds by becoming a sponsor on [GitHub](https://github.com/sponsors/dockovpn) or [OpenCollective](https://opencollective.com/dockovpn)!
+
 ## Content
 
 [Resources](#resources) \
 [Container properties](#container-properties) \
-[Video Quide](#📺-video-guide) \
-[Quick Start](#🚀-quick-start) \
+[Video Guide](#-video-guide) \
+[Quick Start](#-quick-start) \
 [Persisting configuration](#persisting-configuration) \
 [Alternative way. Run with docker-compose](#alternative-way-run-with-docker-compose) \
 [Other resources](#other-resources)
 
 ## Resources
 
+### Real-time Chat
+[Slack](https://dockovpn.slack.com) ([registration](https://join.slack.com/t/dockovpn/shared_invite/zt-200sz4vdi-w2qCtjlN7YIu~ZQPfph_Ow))
+
 ### Website
 
 <https://dockovpn.io>
 
-### Socail media
+### Social media
 
 | Name | URL |
 | :--: | :-----: |
@@ -77,19 +87,23 @@ To get more detailed information, go to [Quick Start](#-quick-start) tutorial or
 | NET_ADAPTER | Network adapter to use on the host machine | eth0 |
 | HOST_ADDR | Host address override if the resolved address doesn't work | localhost |
 | HOST_TUN_PORT | Tunnel port to advertise in the client config file | 1194 |
+| HOST_TUN_PROTOCOL | Tunnel protocol (`tcp` or `udp`) | udp |
 | HOST_CONF_PORT | HTTP port on the host machine to download the client config file | 80 |
+| CRL_DAYS | CRL days until expiration, i.e. invalid for revocation checking | 3650 |
 
-**⚠️ Note:** In the provided code snippet we advertise the configuration suitable for the most users. We don't recommend setting custom 
+**⚠️ Note:** In the provided code snippet we advertise the configuration suitable for the most users. We don't recommend setting custom
 NET_ADAPTER and HOST_ADDR unless you absolutely have to. Now host address is resolved automatically when container starts..
-More often you'd like to customize HOST_TUN_PORT and HOST_CONF_PORT. If this is the case, use the snippet below (dont forget to replace `<custom port>` with your values):
+More often you'd like to customize HOST_TUN_PORT, HOST_CONF_PORT or HOST_TUN_PROTOCOL. If this is the case, use the snippet below (dont forget to replace `<custom port>` and `<custom protocol>`  with your values):
 
 ```shell
 DOCKOVPN_CONFIG_PORT=<custom port>
 DOCKOVPN_TUNNEL_PORT=<custom port>
+DOCKOVPN_TUNNEL_PROTOCOL=<custom protocol>
 docker run -it --rm --cap-add=NET_ADMIN \
--p $DOCKOVPN_TUNNEL_PORT:1194/udp -p $DOCKOVPN_CONFIG_PORT:8080/tcp \
+-p $DOCKOVPN_TUNNEL_PORT:1194/$DOCKOVPN_TUNNEL_PROTOCOL -p $DOCKOVPN_CONFIG_PORT:8080/tcp \
 -e HOST_CONF_PORT="$DOCKOVPN_CONFIG_PORT" \
 -e HOST_TUN_PORT="$DOCKOVPN_TUNNEL_PORT" \
+-e HOST_TUN_PROTOCOL="$DOCKOVPN_TUNNEL_PROTOCOL" \
 --name dockovpn alekslitvinenk/openvpn
 ```
 
@@ -114,11 +128,13 @@ docker run -it --rm --cap-add=NET_ADMIN \
 
 After container was run using `docker run` command, it's possible to execute additional commands using `docker exec` command. For example, `docker exec <container id> ./version.sh`. See table below to get the full list of supported commands.
 
-| Command  | Description |                                                                                                                                                                                                                                                                                                                                                                                                                   Parameters                                                                                                                                                                                                                                                                                                                                                                                                                   |                                                                                                                                                                                                                                Example                                                                                                                                                                                                                                |
-| :------: | :---------: |:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| `./version.sh` | Outputs full container version, i.e `Dockovpn v1.2.0` |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |                                                                                                                                                                                                                  `docker exec dockovpn ./version.sh`                                                                                                                                                                                                                  |
-| `./genclient.sh` | Generates new client configuration | `z` — Optional. Puts newly generated client.ovpn file into client.zip archive.<br><br>`zp paswd` — Optional. Puts newly generated client.ovpn file into client.zip archive with password `pswd` <br><br>`o` — Optional. Prints cert to the output. <br><br>`oz` — Optional. Prints zipped cert to the output. Use with output redirection. <br><br>`ozp paswd` — Optional. Prints encrypted zipped cert to the output. Use with output redirection.  <br><br>`n profile_name` — Optional. Use specified profile_name parameter instead of random id. Prints client.ovpn to the output<br><br>`np profile_name` — Optional. Use specified profile_name parameter instead of random id and protects by password asked by stdin. Password refers to the connection and it will be asked during connection stage. Prints client.ovpn to the output | `docker exec dockovpn ./genclient.sh`<br><br>`docker exec dockovpn ./genclient.sh z`<br><br>`docker exec dockovpn ./genclient.sh zp 123` <br><br>`docker exec dockovpn ./genclient.sh o > client.ovpn`<br><br>`docker exec dockovpn ./genclient.sh oz > client.zip` <br><br>`docker exec dockovpn ./genclient.sh ozp paswd > client.zip`<br><br>`docker exec dockovpn ./genclient.sh n profile_name`<br><br>`docker exec -ti dockovpn ./genclient.sh np profile_name` | 
- | `./rmclient.sh` | Revokes client certificate thus making him/her anable to connect to given Dockovpn server. |                                                                                                                                                                                                                                                                                                                                                                                               Client Id, i.e `vFOoQ3Hngz4H790IpRo6JgKR6cMR3YAp`.                                                                                                                                                                                                                                                                                                                                                                                               |                                                                                                                                                                                                 `docker exec dockovpn ./rmclient.sh vFOoQ3Hngz4H790IpRo6JgKR6cMR3YAp`                                                                                                                                                                                                 |
+| Command  | Description | Parameters | Example |
+| :------: | :---------: | :--------: | :-----: |
+| `./version.sh` | Outputs full container version, i.e `Dockovpn v1.2.0` |  | `docker exec dockovpn ./version.sh` |
+| `./genclient.sh` | Generates new client configuration | `z` — Optional. Puts newly generated client.ovpn file into client.zip archive.<br><br>`zp paswd` — Optional. Puts newly generated client.ovpn file into client.zip archive with password `pswd` <br><br>`o` — Optional. Prints cert to the output. <br><br>`oz` — Optional. Prints zipped cert to the output. Use with output redirection. <br><br>`ozp paswd` — Optional. Prints encrypted zipped cert to the output. Use with output redirection.  <br><br>`n profile_name` — Optional. Use specified profile_name parameter instead of random id. Prints client.ovpn to the output<br><br>`np profile_name` — Optional. Use specified profile_name parameter instead of random id and protects by password asked by stdin. Password refers to the connection and it will be asked during connection stage. Prints client.ovpn to the output | `docker exec dockovpn ./genclient.sh`<br><br>`docker exec dockovpn ./genclient.sh z`<br><br>`docker exec dockovpn ./genclient.sh zp 123` <br><br>`docker exec dockovpn ./genclient.sh o > client.ovpn`<br><br>`docker exec dockovpn ./genclient.sh oz > client.zip` <br><br>`docker exec dockovpn ./genclient.sh ozp paswd > client.zip`<br><br>`docker exec dockovpn ./genclient.sh n profile_name`<br><br>`docker exec -ti dockovpn ./genclient.sh np profile_name` |
+| `./rmclient.sh` | Revokes client certificate thus making him/her anable to connect to given Dockovpn server. | Client Id, i.e `vFOoQ3Hngz4H790IpRo6JgKR6cMR3YAp` | `docker exec dockovpn ./rmclient.sh vFOoQ3Hngz4H790IpRo6JgKR6cMR3YAp` |
+| `./listconfigs.sh` | List all generated available config IDs |  | `docker exec dockovpn ./listconfigs.sh` |
+| `./getconfig.sh` | Return previously generated config by client ID | Client Id, i.e `vFOoQ3Hngz4H790IpRo6JgKR6cMR3YAp` | `docker exec dockovpn./getconfig.sh vFOoQ3Hngz4H790IpRo6JgKR6cMR3YAp` |
 
  **⚠️ Note:** If you generated a new client configuration with custom name e.g `dockovpn exec ./genclient.sh n customname` and then chose to remove this config using `dockovpn exec ./rmclient.sh customname`, the client certificate is revoked permanently in this server, therefore, you cannot create client configuration with the same name again. Doing so will result in error `Sat Oct 28 10:05:17 2023 Client with this id [customname] already exists`.
 
@@ -144,7 +160,7 @@ docker run -it --rm --cap-add=NET_ADMIN \
 --name dockovpn alekslitvinenk/openvpn
 ```
 
-**⚠️ Note:** This snippet runs Dockovpn in attached mode, which means if you close your terminal window, container will be stopped. 
+**⚠️ Note:** This snippet runs Dockovpn in attached mode, which means if you close your terminal window, container will be stopped.
 To prevent this from happening, you first need to detach container from ssh session. Type `Ctrl+P Ctrl+Q`.
 
 If everything went well, you should be able to see the following output in your console:
@@ -189,14 +205,15 @@ To run dockvpn with docker-compose run:
 
 ```bash
 docker-compose up -d && \
-docker-compose exec -d dockovpn wget -O /doc/Dockovpn/client.ovpn localhost:8080
+docker-compose exec -d dockovpn wget -O /opt/Dockovpn/client.ovpn localhost:8080
 ```
 
 After run this command you can find your `client.ovpn` inside `openvpn_conf` folder.
 
 ## Other resources
 
-[Contrubition Guidelines](https://github.com/alekslitvinenk/docker-openvpn/blob/master/CONTRIBUTING.md)<br>
-[Code Of Conduct](https://github.com/alekslitvinenk/docker-openvpn/blob/master/CODE_OF_CONDUCT.md)<br>
-[Release Guideline](https://github.com/alekslitvinenk/docker-openvpn/blob/master/docs/RELEASE_GUIDELINE.md)<br>
+[Privacy Policy](https://github.com/alekslitvinenk/docker-openvpn/blob/master/PRIVACY_POLICY.md) \
+[Contrubition Guidelines](https://github.com/alekslitvinenk/docker-openvpn/blob/master/CONTRIBUTING.md) \
+[Code Of Conduct](https://github.com/alekslitvinenk/docker-openvpn/blob/master/CODE_OF_CONDUCT.md) \
+[Release Guideline](https://github.com/alekslitvinenk/docker-openvpn/blob/master/docs/RELEASE_GUIDELINE.md) \
 [License Agreement](https://github.com/alekslitvinenk/docker-openvpn/blob/master/LICENSE)

@@ -19,6 +19,7 @@ services:
         - ./openvpn_conf/clients:/opt/Dockovpn_data/clients
         - ./openvpn_conf/ccd:/etc/openvpn/ccd
         - ./openvpn_ipp/ipp.txt:/opt/Dockovpn/ipp.txt
+        - ./config/vars.easyrsa:/usr/share/easy-rsa/vars
     restart: always
     networks:
         - eth

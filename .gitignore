@@ -1,6 +1,9 @@
 bin/
 done.txt
 client/
+ccd/
+openvpn_ipp/
+openvpn_conf/
 build_number.txt
 full_version.txt
 CHANGELOG-draft.md
@@ -9,3 +12,4 @@ test-reports/
 target
 .vscode/
 ipv6-leack-test.sh
+.env
